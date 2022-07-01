@@ -12,7 +12,7 @@ namespace StackBuilderConfigurationTool.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -27,7 +27,8 @@ namespace StackBuilderConfigurationTool.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
         [global::System.Configuration.DefaultSettingValueAttribute("Data Source=enygdb1;Initial Catalog=ElectionProd;Persist Security Info=True;User " +
-            "ID=gfxuser;Password=elect2018")]
+            "ID=electProduction;Password=fng2-Pr3s1d3nt@2020;Encrypt=True;TrustServerCertific" +
+            "ate=False")]
         public string dbConnection {
             get {
                 return ((string)(this["dbConnection"]));

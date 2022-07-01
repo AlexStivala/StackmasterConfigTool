@@ -53,6 +53,7 @@ namespace StackBuilderConfigurationTool
             public bool Maps { get; set; }
             public bool StackBuildOnly { get; set; }
             public string Network { get; set; }
+            public bool NPV { get; set; }
 
         }
 
@@ -81,7 +82,7 @@ namespace StackBuilderConfigurationTool
         }
 
         
-        public string[] TabNames = new string[6] {"RaceBoards","VoterAnalysis","BOP","Referendums","SidePanel","Maps"};
+        public string[] TabNames = new string[7] {"RaceBoards", "VoterAnalysis", "BOP", "Referendums", "SidePanel", "Maps", "NPV"};
 
         public EngineRec initEngine = new EngineRec();
         public TabRec initTabs = new TabRec();
@@ -139,6 +140,7 @@ namespace StackBuilderConfigurationTool
             initTabs.Referendums = false;
             initTabs.StackBuildOnly = true;
             initTabs.Network = "FNC";
+            initTabs.NPV = false;
 
 
 
@@ -262,12 +264,9 @@ namespace StackBuilderConfigurationTool
             }
 
 
-            cmd = $"SELECT DISTINCT Config1 FROM FE_Devices";
-            configs = GetDBData(cmd, dbConnection);
-
+            
             string deviceName;
-            string configName;
-
+            
             // initialize device name combobox
             for (int i = 0; i < devices.Rows.Count; i++)
             {
@@ -277,15 +276,7 @@ namespace StackBuilderConfigurationTool
 
             }
 
-            // initialize config combobox
-            for (int i = 0; i < configs.Rows.Count; i++)
-            {
-                DataRow row = configs.Rows[i];
-                configName = row["Config1"].ToString().Trim();
-                if (configName != "")
-                    cbConfig.Items.Add(configName);
-            }
-
+            initConfigcb();
             string config = "";
             cmd = $"SELECT * FROM FE_Tabs WHERE Config = '{config}'";
             tabs = GetDBData(cmd, dbConnection);
@@ -302,17 +293,38 @@ namespace StackBuilderConfigurationTool
             dgvTabs.Columns[0].Width = 150;
             dgvTabs.Columns[1].Width = 110;
             dgvTabs.Columns[2].Width = 120;
-            dgvTabs.Columns[3].Width = 80;
+            dgvTabs.Columns[3].Width = 50;
             dgvTabs.Columns[4].Width = 120;
-            dgvTabs.Columns[5].Width = 120;
-            dgvTabs.Columns[6].Width = 80;
-            dgvTabs.Columns[7].Width = 150;
-            dgvTabs.Columns[8].Width = 110;
+            dgvTabs.Columns[5].Width = 100;
+            dgvTabs.Columns[6].Width = 55;
+            dgvTabs.Columns[7].Width = 130;
+            dgvTabs.Columns[8].Width = 80;
+            dgvTabs.Columns[9].Width = 50;
 
             dgvTabs.Columns[7].HeaderText = "Multiplay Only";
 
 
         }
+
+        public void initConfigcb()
+        {
+            string configName;
+//            string cmd = $"SELECT DISTINCT Config1 FROM FE_Devices";
+            string cmd = $"SELECT DISTINCT Config FROM FE_Tabs";
+            configs = GetDBData(cmd, dbConnection);
+
+            cbConfig.Items.Clear();
+            // initialize config combobox
+            for (int i = 0; i < configs.Rows.Count; i++)
+            {
+                DataRow row = configs.Rows[i];
+                configName = row["Config"].ToString().Trim();
+                if (configName != "")
+                    cbConfig.Items.Add(configName);
+            }
+
+        }
+
         public static DataTable GetDBData(string cmdStr, string dbConnection)
         {
             DataTable dataTable = new DataTable();
@@ -363,126 +375,135 @@ namespace StackBuilderConfigurationTool
         
         public void GetConfigInfo(string config)
         {
-            string cmd = $"SELECT * FROM FE_EngineDefs WHERE Config = '{config}'";
-            engines = GetDBData(cmd, dbConnection);
-            string n;
-            string e1;
-            string p1;
-            bool en1;
-
-            if (engines.Rows.Count > 0)
+            try
             {
-                DataRow row = engines.Rows[0];
-                n = row[0].ToString().Trim();
-                e1 = row[1].ToString().Trim();
-                p1 = row[2].ToString().Trim() ?? "6100";
-                en1 = Convert.ToBoolean(row[3]);
-                dgvEngines.Rows[0].Cells[0].Value = n;
-                dgvEngines.Rows[0].Cells[1].Value = e1;
-                dgvEngines.Rows[0].Cells[2].Value = p1;
-                dgvEngines.Rows[0].Cells[3].Value = en1;
+                string cmd = $"SELECT * FROM FE_EngineDefs WHERE Config = '{config}'";
+                engines = GetDBData(cmd, dbConnection);
+                string n;
+                string e1;
+                string p1;
+                bool en1;
 
-                e1 = row[4].ToString().Trim();
-                p1 = row[5].ToString().Trim() ?? "6100";
-                en1 = Convert.ToBoolean(row[6]);
-                dgvEngines.Rows[0].Cells[4].Value = e1;
-                dgvEngines.Rows[0].Cells[5].Value = p1;
-                dgvEngines.Rows[0].Cells[6].Value = en1;
+                if (engines.Rows.Count > 0)
+                {
+                    DataRow row = engines.Rows[0];
+                    n = row[0].ToString().Trim();
+                    e1 = row[1].ToString().Trim();
+                    p1 = row[2].ToString().Trim() ?? "6100";
+                    en1 = Convert.ToBoolean(row[3]);
+                    dgvEngines.Rows[0].Cells[0].Value = n;
+                    dgvEngines.Rows[0].Cells[1].Value = e1;
+                    dgvEngines.Rows[0].Cells[2].Value = p1;
+                    dgvEngines.Rows[0].Cells[3].Value = en1;
 
-                e1 = row[7].ToString().Trim();
-                p1 = row[8].ToString().Trim() ?? "6100";
-                en1 = Convert.ToBoolean(row[9]);
-                dgvEngines.Rows[0].Cells[7].Value = e1;
-                dgvEngines.Rows[0].Cells[8].Value = p1;
-                dgvEngines.Rows[0].Cells[9].Value = en1;
+                    e1 = row[4].ToString().Trim();
+                    p1 = row[5].ToString().Trim() ?? "6100";
+                    en1 = Convert.ToBoolean(row[6]);
+                    dgvEngines.Rows[0].Cells[4].Value = e1;
+                    dgvEngines.Rows[0].Cells[5].Value = p1;
+                    dgvEngines.Rows[0].Cells[6].Value = en1;
 
-                e1 = row[10].ToString().Trim();
-                p1 = row[11].ToString().Trim() ?? "6100";
-                en1 = Convert.ToBoolean(row[12] ?? false);
-                dgvEngines.Rows[0].Cells[10].Value = e1;
-                dgvEngines.Rows[0].Cells[11].Value = p1;
-                dgvEngines.Rows[0].Cells[12].Value = en1;
+                    e1 = row[7].ToString().Trim();
+                    p1 = row[8].ToString().Trim() ?? "6100";
+                    en1 = Convert.ToBoolean(row[9]);
+                    dgvEngines.Rows[0].Cells[7].Value = e1;
+                    dgvEngines.Rows[0].Cells[8].Value = p1;
+                    dgvEngines.Rows[0].Cells[9].Value = en1;
+
+                    e1 = row[10].ToString().Trim();
+                    p1 = row[11].ToString().Trim() ?? "6100";
+                    en1 = Convert.ToBoolean(row[12] ?? false);
+                    dgvEngines.Rows[0].Cells[10].Value = e1;
+                    dgvEngines.Rows[0].Cells[11].Value = p1;
+                    dgvEngines.Rows[0].Cells[12].Value = en1;
 
 
+                }
+                else
+                {
+                    initEngine.config = config;
+                    SetFE_EngineDefs(initEngine);
+                }
+
+                string Network = "FNC";
+
+
+                cmd = $"SELECT * FROM FE_Tabs WHERE Config = '{config}'";
+                tabs = GetDBData(cmd, dbConnection);
+
+                BindingSource SBind = new BindingSource();
+                SBind.DataSource = tabs;
+                dgvTabs.DataSource = SBind;
+
+                if (tabs.Rows.Count > 0)
+                {
+                    dgvTabs.DataSource = tabs;
+                    Network = dgvTabs.Rows[0].Cells[8].Value.ToString();
+                }
+                else
+                {
+                    initTabs.config = config;
+                    SetFE_Tabs(initTabs);
+                }
+
+
+                dgvTabs.Columns[0].Width = 150;
+                dgvTabs.Columns[1].Width = 110;
+                dgvTabs.Columns[2].Width = 120;
+                dgvTabs.Columns[3].Width = 50;
+                dgvTabs.Columns[4].Width = 120;
+                dgvTabs.Columns[5].Width = 100;
+                dgvTabs.Columns[6].Width = 55;
+                dgvTabs.Columns[7].Width = 130;
+                dgvTabs.Columns[8].Width = 80;
+                dgvTabs.Columns[9].Width = 50;
+
+                cmd = $"SELECT Name, IP_Address, Notes, Config1 FROM FE_Devices";
+                devices = GetDBData(cmd, dbConnection);
+                int index = dgvDevices.CurrentCell.RowIndex;
+                dgvDevices.DataSource = null;
+                dgvDevices.DataSource = devices;
+                dgvDevices.Columns["Name"].Width = 200;
+                dgvDevices.Columns["IP_Address"].Width = 150;
+                dgvDevices.Columns["Notes"].Width = 150;
+                dgvDevices.Columns["Config1"].Width = 200;
+                dgvDevices.CurrentCell = dgvDevices.Rows[index].Cells[0];
+                cbConfig.Text = config;
+
+
+                cmd = $"SELECT * FROM FE_TabConfig WHERE Config = '{config}'";
+                tabConfig = GetDBData(cmd, dbConnection);
+
+                BindingSource SBind1 = new BindingSource();
+                SBind1.DataSource = tabConfig;
+                dgvScenes.DataSource = SBind1;
+
+                if (tabConfig.Rows.Count > 0)
+                {
+                    dgvScenes.Columns[0].Width = 200;
+                    dgvScenes.Columns[1].Width = 120;
+                    dgvScenes.Columns[2].Width = 100;
+                    dgvScenes.Columns[3].Width = 180;
+
+                }
+
+                cmd = $"SELECT * FROM FE_Scenes WHERE Network = '{Network}'";
+                scenes = GetDBData(cmd, dbConnection);
+                if (scenes.Rows.Count > 0)
+                {
+                    dgvAvailableScenes.DataSource = scenes;
+
+                    dgvAvailableScenes.Columns[0].Width = 160;
+                    dgvAvailableScenes.Columns[1].Width = 590;
+                    dgvAvailableScenes.Columns[2].Width = 75;
+                    dgvAvailableScenes.Columns[3].Width = 95;
+
+                }
             }
-            else
+            catch (Exception ex)
             {
-                initEngine.config = config;
-                SetFE_EngineDefs(initEngine);
-            }
-
-            string Network = "FNC";
-
-            
-            cmd = $"SELECT * FROM FE_Tabs WHERE Config = '{config}'";
-            tabs = GetDBData(cmd, dbConnection);
-
-            BindingSource SBind = new BindingSource();
-            SBind.DataSource = tabs;
-            dgvTabs.DataSource = SBind;
-
-            if (tabs.Rows.Count > 0)
-            {
-                dgvTabs.DataSource = tabs;
-                Network = dgvTabs.Rows[0].Cells[8].Value.ToString();
-            }
-            else
-            {
-                initTabs.config = config;
-                SetFE_Tabs(initTabs);
-            }
-
-            
-            dgvTabs.Columns[0].Width = 150;
-            dgvTabs.Columns[1].Width = 110;
-            dgvTabs.Columns[2].Width = 120;
-            dgvTabs.Columns[3].Width = 80;
-            dgvTabs.Columns[4].Width = 120;
-            dgvTabs.Columns[5].Width = 120;
-            dgvTabs.Columns[6].Width = 80;
-            dgvTabs.Columns[7].Width = 150;
-            dgvTabs.Columns[8].Width = 110;
-
-            cmd = $"SELECT Name, IP_Address, Notes, Config1 FROM FE_Devices";
-            devices = GetDBData(cmd, dbConnection);
-            int index = dgvDevices.CurrentCell.RowIndex;
-            dgvDevices.DataSource = null;
-            dgvDevices.DataSource = devices;
-            dgvDevices.Columns["Name"].Width = 200;
-            dgvDevices.Columns["IP_Address"].Width = 150;
-            dgvDevices.Columns["Notes"].Width = 150;
-            dgvDevices.Columns["Config1"].Width = 200;
-            dgvDevices.CurrentCell = dgvDevices.Rows[index].Cells[0];
-            cbConfig.Text = config;
-
-
-            cmd = $"SELECT * FROM FE_TabConfig WHERE Config = '{config}'";
-            tabConfig = GetDBData(cmd, dbConnection);
-
-            BindingSource SBind1 = new BindingSource();
-            SBind1.DataSource = tabConfig;
-            dgvScenes.DataSource = SBind1;
-
-            if (tabConfig.Rows.Count > 0)
-            {
-                dgvScenes.Columns[0].Width = 200;
-                dgvScenes.Columns[1].Width = 120;
-                dgvScenes.Columns[2].Width = 100;
-                dgvScenes.Columns[3].Width = 180;
-
-            }
-
-            cmd = $"SELECT * FROM FE_Scenes WHERE Network = '{Network}'";
-            scenes = GetDBData(cmd, dbConnection);
-            if (scenes.Rows.Count > 0)
-            {
-                dgvAvailableScenes.DataSource = scenes;
-             
-                dgvAvailableScenes.Columns[0].Width = 135;
-                dgvAvailableScenes.Columns[1].Width = 470;
-                dgvAvailableScenes.Columns[2].Width = 75;
-                dgvAvailableScenes.Columns[3].Width = 120;
-
+                string s = $"GetConfigInfo error {ex.Message}  {ex.StackTrace} ";
+                textBox1.Text = s;
             }
 
 
@@ -557,7 +578,7 @@ namespace StackBuilderConfigurationTool
         {
             string cmdStr;
 
-            cmdStr = "setFE_Tabs @Config, @Raceboards, @VoterAnalysis, @BOP, @Referendums, @SidePanel, @Maps, @BuilderOnly, @Network";
+            cmdStr = "setFE_Tabs @Config, @Raceboards, @VoterAnalysis, @BOP, @Referendums, @SidePanel, @Maps, @BuilderOnly, @Network, @NPV";
 
             //Save out the top-level metadata
             try
@@ -598,6 +619,7 @@ namespace StackBuilderConfigurationTool
                                 cmd.Parameters.Add("@Maps", SqlDbType.Bit).Value = Convert.ToBoolean(row[6]);
                                 cmd.Parameters.Add("@BuilderOnly", SqlDbType.Bit).Value = Convert.ToBoolean(row[7]);
                                 cmd.Parameters.Add("@Network", SqlDbType.VarChar).Value = row[8].ToString().Trim();
+                                cmd.Parameters.Add("@NPV", SqlDbType.Bit).Value = Convert.ToBoolean(row[9]);
 
                                 sqlDataAdapter.SelectCommand = cmd;
                                 sqlDataAdapter.SelectCommand.Connection = connection;
@@ -633,7 +655,7 @@ namespace StackBuilderConfigurationTool
         {
             string cmdStr;
 
-            cmdStr = "setFE_Tabs @Config, @Raceboards, @VoterAnalysis, @BOP, @Referendums, @SidePanel, @Maps, @BuilderOnly, @Network";
+            cmdStr = "setFE_Tabs @Config, @Raceboards, @VoterAnalysis, @BOP, @Referendums, @SidePanel, @Maps, @BuilderOnly, @Network, @NPV";
 
             //Save out the top-level metadata
             try
@@ -673,6 +695,7 @@ namespace StackBuilderConfigurationTool
                                 cmd.Parameters.Add("@Maps", SqlDbType.Bit).Value = tabs.Maps;
                                 cmd.Parameters.Add("@BuilderOnly", SqlDbType.Bit).Value = tabs.StackBuildOnly;
                                 cmd.Parameters.Add("@Network", SqlDbType.VarChar).Value = tabs.Network;
+                                cmd.Parameters.Add("@NPV", SqlDbType.Bit).Value = tabs.NPV;
 
                                 sqlDataAdapter.SelectCommand = cmd;
                                 sqlDataAdapter.SelectCommand.Connection = connection;
@@ -1175,8 +1198,6 @@ namespace StackBuilderConfigurationTool
 
         private void button1_Click(object sender, EventArgs e)
         {
-
-            
             for (int i = 0; i < tabConfig.Rows.Count; i++)
             {
                 AddSceneRec scene = new AddSceneRec();
@@ -1190,7 +1211,6 @@ namespace StackBuilderConfigurationTool
             }
             
             GetConfigInfo(currentConfig);
-
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -1214,5 +1234,94 @@ namespace StackBuilderConfigurationTool
             init();
             btnConfigUpdate_Click(sender, e);
         }
+
+        private void btnDeleteConfig_Click(object sender, EventArgs e)
+        {
+            string config = cbConfig.Text;
+            string cmd = $"DELETE FROM FE_TabConfig WHERE Config = '{config}'";
+            ExecuteQuery(cmd);
+
+            cmd = $"DELETE FROM FE_Tabs WHERE Config = '{config}'";
+            ExecuteQuery(cmd);
+
+            cmd = $"DELETE FROM FE_EngineDefs WHERE Config = '{config}'";
+            ExecuteQuery(cmd);
+
+            cmd = $"UPDATE FE_Devices SET Config1 = '' WHERE Config1 = '{config}'";
+            ExecuteQuery(cmd);
+
+            cbConfig.Text = "";
+
+            initConfigcb();
+
+            GetConfigInfo(cbConfig.Text);
+
+        }
+
+        private void ExecuteQuery(string cmdStr)
+        {
+            
+            //Save out the top-level metadata
+            try
+            {
+
+                // Instantiate the connection
+                using (SqlConnection connection = new SqlConnection(dbConnection))
+                {
+                    connection.Open();
+
+                    using (SqlDataAdapter sqlDataAdapter = new SqlDataAdapter())
+                    {
+                        using (SqlCommand cmd = new SqlCommand())
+                        {
+
+                            SqlTransaction transaction;
+                            // Start a local transaction.
+                            transaction = connection.BeginTransaction("Update Config");
+
+                            // Must assign both transaction object and connection 
+                            // to Command object for a pending local transaction
+                            cmd.Connection = connection;
+                            cmd.Transaction = transaction;
+
+                            try
+                            {
+                                //Specify base command
+                                cmd.CommandText = cmdStr;
+
+                                sqlDataAdapter.SelectCommand = cmd;
+                                sqlDataAdapter.SelectCommand.Connection = connection;
+                                sqlDataAdapter.SelectCommand.CommandType = CommandType.Text;
+
+                                // Execute stored proc to store top-level metadata
+                                sqlDataAdapter.SelectCommand.ExecuteNonQuery();
+
+                                //Attempt to commit the transaction
+                                transaction.Commit();
+
+
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                //log.Error("UpdateData- SQL Command Exception occurred: " + ex.Message);
+                                //log.Debug("UpdateData- SQL Command Exception occurred", ex);
+                            }
+                        }
+                    }
+                    connection.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //log.Error("UpdateData- SQL Connection Exception occurred: " + ex.Message);
+                //log.Debug("UpdateData- SQL Connection Exception occurred", ex);
+            }
+        }
+
+
+
+
     }
 }
